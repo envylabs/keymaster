@@ -16,6 +16,10 @@ class ProjectTest < ActiveSupport::TestCase
     
     should_validate_uniqueness_of :name
     
+    should 'use the name for the slug' do
+      assert_equal('this-is-a-test', Factory(:project, :name => 'This is a Test').to_param)
+    end
+    
   end
   
 end
