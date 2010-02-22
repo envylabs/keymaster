@@ -5,4 +5,6 @@ Rails::Initializer.run do |config|
   config.gem        'friendly_id', :version => '=2.3.2'
 
   config.time_zone  = 'UTC'
+  
+  config.middleware.use 'RsaResponseSigning'
 end
