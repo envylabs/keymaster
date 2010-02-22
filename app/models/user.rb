@@ -1,7 +1,9 @@
 class User < ActiveRecord::Base
   
   has_many                :memberships,
-                          :dependent => :destroy
+                          :dependent  => :destroy
+  has_many                :projects,
+                          :through    => :memberships
   
   validates_presence_of   :login,
                           :full_name,

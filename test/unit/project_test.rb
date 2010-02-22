@@ -11,6 +11,7 @@ class ProjectTest < ActiveSupport::TestCase
     subject { @project }
     
     should_have_many              :memberships, :dependent => :destroy
+    should_have_many              :users
     
     should_validate_presence_of   :name
     
