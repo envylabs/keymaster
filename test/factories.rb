@@ -8,3 +8,8 @@ end
 Factory.define :project do |p|
   p.sequence(:name)     { |n| "Factory Project #{n}" }
 end
+
+Factory.define :membership do |m|
+  m.association         :project
+  m.association         :user
+end

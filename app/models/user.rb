@@ -1,5 +1,8 @@
 class User < ActiveRecord::Base
   
+  has_many                :memberships,
+                          :dependent => :destroy
+  
   validates_presence_of   :login,
                           :full_name,
                           :public_ssh_key,

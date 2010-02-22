@@ -10,6 +10,8 @@ class UserTest < ActiveSupport::TestCase
     
     subject { @user }
     
+    should_have_many              :memberships, :dependent => :destroy
+    
     should_validate_presence_of   :login,
                                   :full_name,
                                   :public_ssh_key,

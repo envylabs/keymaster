@@ -10,6 +10,8 @@ class ProjectTest < ActiveSupport::TestCase
     
     subject { @project }
     
+    should_have_many              :memberships, :dependent => :destroy
+    
     should_validate_presence_of   :name
     
     should_validate_uniqueness_of :name
