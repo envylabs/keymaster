@@ -4,7 +4,7 @@ class ProjectsController < ApplicationController
     @project = Project.find(params[:id])
     
     respond_to do |format|
-      format.yaml { render :text => @project.to_yaml }
+      format.yaml { render :text => @project.attributes.to_yaml }
     end
   end
   
