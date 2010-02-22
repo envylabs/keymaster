@@ -32,6 +32,13 @@ class UserTest < ActiveSupport::TestCase
     should_allow_values_for       :uid, 5000, 6000, 10000
     should_not_allow_values_for   :uid, 0, 1, -100, 4999
     
+    should_allow_values_for       :login, 'thomas', 'foo', 'baz123', 'HappyBunnies'
+    should_not_allow_values_for   :login, 'Happy Bunnies', 'Thomas Meeks', '1bunny', 'foo@bar.com', 'foo-bar', 'foo.bar', '.foo'
+    
+    should 'use the login for the slug' do
+      assert_equal('fubar', Factory.build(:user, :login => 'fubar').to_param)
+    end
+    
   end
   
 end
