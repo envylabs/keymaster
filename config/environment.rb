@@ -6,5 +6,6 @@ Rails::Initializer.run do |config|
 
   config.time_zone  = 'UTC'
   
-  config.middleware.use 'RsaResponseSigning'
+  config.middleware.use 'RsaResponseSigning', ENV['PRIVATE_SIGNING_KEY']
+  
 end
