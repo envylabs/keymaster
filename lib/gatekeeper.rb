@@ -14,10 +14,13 @@ require 'uri'
 require 'yaml'
 require 'cgi'
 
+
 ##
 # Envy Labs ShellUsers
 #
 class ShellUser
+  
+  Version = '%CURRENT_KEYMASTER_VERSION%'
   
   PublicKey = <<-KEY
 -----BEGIN RSA PUBLIC KEY-----
@@ -67,7 +70,7 @@ KEY
   
   def self.response_valid?(data, signature)
     OpenSSL::PKey::RSA.new(PublicKey).
-      verify(OpenSSL::Digest::SHA256.new, Base64.decode64(CGI.unescape(signature)), data.strip)
+      verify(OpenSSL::Digest::SHA256.new, Base64.decode64(CGI.unescape(signature)), data)
   end
 
   attr_accessor :login, :full_name, :public_key, :uid

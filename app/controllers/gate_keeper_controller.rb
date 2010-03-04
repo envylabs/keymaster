@@ -2,7 +2,7 @@ class GateKeeperController < ApplicationController
   
   def index
     respond_to do |format|
-      format.rb { render :text => File.read(File.join(Rails.root, 'lib/gatekeeper.rb')) }
+      format.rb { render :text => Keymaster.gatekeeper_data }
     end
   end
   
