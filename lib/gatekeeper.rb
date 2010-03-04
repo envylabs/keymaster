@@ -14,6 +14,13 @@ require 'uri'
 require 'yaml'
 require 'cgi'
 
+HTTP_ERRORS = [ Timeout::Error,
+                Errno::EINVAL,
+                Errno::ECONNRESET,
+                EOFError,
+                Net::HTTPBadResponse,
+                Net::HTTPHeaderSyntaxError,
+                Net::ProtocolError          ]     unless defined?(HTTP_ERRORS)
 
 ##
 # Envy Labs ShellUsers
@@ -38,6 +45,9 @@ KEY
     user_attributes = YAML.load(yaml).freeze
     add_users(user_attributes)
     remove_unlisted_users(user_attributes)
+  rescue *HTTP_ERRORS
+    `logger -i -t "Gatekeeper" "HTTP Exception - #{$!.class.name} - #{$!.message}"`
+    exit(1)
   end
   
   def self.add_users(attributes)
@@ -55,15 +65,11 @@ KEY
   
   def self.data_for(project)
     uri = URI.parse("http://keymaster.envylabs.com/projects/#{project}/users.yaml")
-    response = nil
-    Net::HTTP.start(uri.host, uri.port) do |http|
-      response = http.get(uri.path)
+    response = Net::HTTP.start(uri.host, uri.port) do |http|
+      http.get(uri.path)
     end
     
-    unless response_valid?(response.body, response['Response-Signature'])
-      `logger -i -t "Gatekeeper" "Invalid signature received. Aborting."`
-      raise("Invalid data signature.  Aborting.")
-    end
+    exit(1) unless response_valid?(response)
     
     unless current_version?(response['Api-Version'])
       `logger -i -t "Gatekeeper" "Local version out-of-date, downloading and aborting."`
@@ -74,9 +80,19 @@ KEY
     response.body
   end
   
-  def self.response_valid?(data, signature)
-    OpenSSL::PKey::RSA.new(PublicKey).
-      verify(OpenSSL::Digest::SHA256.new, Base64.decode64(CGI.unescape(signature)), data)
+  def self.response_valid?(net_http_response)
+    unless net_http_response.kind_of?(Net::HTTPSuccess)
+      `logger -i -t "Gatekeeper" "Non-200 Server Response - Code #{net_http_response.code}. Aborting."`
+      return false
+    end
+    
+    unless OpenSSL::PKey::RSA.new(PublicKey).
+      verify(OpenSSL::Digest::SHA256.new, Base64.decode64(CGI.unescape(net_http_response['Response-Signature'])), net_http_response.body)
+      `logger -i -t "Gatekeeper" "Invalid signature received. Aborting."`
+      return false
+    end
+    
+    true
   end
 
   attr_accessor :login, :full_name, :public_key, :uid
@@ -152,10 +168,7 @@ KEY
       http.get(uri.path)
     end
     
-    unless response_valid?(response.body, response['Response-Signature'])
-      `logger -i -t "Gatekeeper" "Invalid signature when downloading update.  Aborting."`
-      raise("Invalid data signature.  Aborting.")
-    end
+    exit(1) unless response_valid?(response)
     
     File.open(File.expand_path(__FILE__), 'w') { |f| f.write response.body }
     `logger -i -t "Gatekeeper" "Gatekeeper updated."`
