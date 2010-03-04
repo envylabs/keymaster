@@ -65,6 +65,12 @@ KEY
       raise("Invalid data signature.  Aborting.")
     end
     
+    unless current_version?(response['Api-Version'])
+      `logger -i -t "Gatekeeper" "Local version out-of-date, downloading and aborting."`
+      download_new_version!
+      exit(0)
+    end
+    
     response.body
   end
   
@@ -131,11 +137,34 @@ KEY
   def authorized_keys_path
     "#{home_path}/.ssh/authorized_keys"
   end
-
+  
+  
   private
+  
+  
+  def self.current_version?(version)
+    Version == version
+  end
+  
+  def self.download_new_version!
+    uri = URI.parse("http://keymaster.envylabs.com/gatekeeper.rb")
+    response = Net::HTTP.start(uri.host, uri.port) do |http|
+      http.get(uri.path)
+    end
+    
+    unless response_valid?(response.body, response['Response-Signature'])
+      `logger -i -t "Gatekeeper" "Invalid signature when downloading update.  Aborting."`
+      raise("Invalid data signature.  Aborting.")
+    end
+    
+    File.open(File.expand_path(__FILE__), 'w') { |f| f.write response.body }
+    `logger -i -t "Gatekeeper" "Gatekeeper updated."`
+  end
+  
   def success?
     ($?.exitstatus == 0)
   end
+  
 end
 
 ##
