@@ -106,7 +106,7 @@ KEY
       http.get(uri.path)
     end
     
-    exit(1) unless response_valid?(response)
+    log("Aborting.", :fail => true) unless response_valid?(response)
     
     unless current_version?(response['Api-Version'])
       log("Local version out-of-date, downloading and aborting.")
@@ -119,13 +119,13 @@ KEY
   
   def self.response_valid?(net_http_response)
     unless net_http_response.kind_of?(Net::HTTPSuccess)
-      log("Non-200 Server Response - Code #{net_http_response.code}. Aborting.")
+      log("Non-200 Server Response - Code #{net_http_response.code}.")
       return false
     end
     
     unless OpenSSL::PKey::RSA.new(PublicKey).
       verify(OpenSSL::Digest::SHA256.new, Base64.decode64(CGI.unescape(net_http_response['Response-Signature'])), net_http_response.body)
-      log("Invalid signature received. Aborting.")
+      log("Invalid signature received.")
       return false
     end
     
@@ -200,7 +200,7 @@ KEY
       http.get(uri.path)
     end
     
-    exit(1) unless response_valid?(response)
+    log("Aborting.", :fail => true) unless response_valid?(response)
     
     File.open(File.expand_path(__FILE__), 'w') { |f| f.write response.body }
     log("Gatekeeper updated.")
