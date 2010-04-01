@@ -209,7 +209,7 @@ end
 ##
 # Need to run as root/sudo
 #
-if execute("id", :parameters => %|-u|) == '0'
+unless execute("id", :parameters => %|-u|) == '0'
   puts "Please run as root/sudo"
   log("Please run as root/sudo", :fail => true)
 end
