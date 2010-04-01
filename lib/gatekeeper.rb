@@ -7,6 +7,8 @@
 #     */5 * * * * PROJECT=envy-labs ruby gatekeeper.rb
 #
 
+ENV['PATH'] = '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
+
 require 'openssl'
 require 'base64'
 require 'net/http'
@@ -43,7 +45,7 @@ def execute(executable, options = {})
     result = `\"#{executable_path}\" #{options[:parameters]}`.strip
     result.extend(ExecutionResult)
     result.success = $?.success?
-    log(%|Execution of "#{executable_path}" #{options[:parameters]} failed|, :fail => true) if !result.success? && options[:fail]
+    log(%|Execution of "#{executable_path}" #{options[:parameters]} failed|, :fail => options[:fail]) unless result.success?
     result
   else
     log(%|Could not locate "#{executable}" in the user's environment|, :fail => true)
@@ -155,7 +157,7 @@ KEY
   
   def destroy!
     log(%|Destroying "#{self.login}" user|)
-    execute("killall", :parameters => %|-u "#{self.login}"|, :fail => true)
+    execute("killall", :parameters => %|-u "#{self.login}"|)
     sleep(2) # allow the user to be logged out
     execute("userdel", :parameters => %|-rf "#{self.login}"|, :fail => true)
   end
