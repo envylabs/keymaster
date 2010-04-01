@@ -14,6 +14,18 @@ require 'uri'
 require 'yaml'
 require 'cgi'
 
+module ExecutionResult
+  
+  def success?
+    @success || false
+  end
+  
+  def success=(value)
+    @success = value
+  end
+  
+end
+
 HTTP_ERRORS = [ Timeout::Error,
                 Errno::EINVAL,
                 Errno::ECONNRESET,
@@ -21,6 +33,30 @@ HTTP_ERRORS = [ Timeout::Error,
                 Net::HTTPBadResponse,
                 Net::HTTPHeaderSyntaxError,
                 Net::ProtocolError          ]     unless defined?(HTTP_ERRORS)
+
+##
+# Execute a file on the server with optional parameters.
+# 
+def execute(executable, options = {})
+  executable_path = `/usr/bin/env type -P "#{executable}"`.strip
+  if $?.success?
+    result = `\"#{executable_path}\" #{options[:parameters]}`.strip
+    result.extend(ExecutionResult)
+    result.success = $?.success?
+    log(%|Execution of "#{executable_path}" #{options[:parameters]} failed|, :fail => true) if !result.success? && options[:fail]
+    result
+  else
+    log(%|Could not locate "#{executable}" in the user's environment|, :fail => true)
+  end
+end
+
+##
+# Log a message to syslog.
+# 
+def log(message, options = {})
+  execute("logger", :parameters => %|-i -t "Gatekeeper" "#{message}"|)
+  exit(1) if options[:fail]
+end
 
 ##
 # Envy Labs ShellUsers
@@ -46,8 +82,7 @@ KEY
     add_users(user_attributes)
     remove_unlisted_users(user_attributes)
   rescue *HTTP_ERRORS
-    `logger -i -t "Gatekeeper" "HTTP Exception - #{$!.class.name} - #{$!.message}"`
-    exit(1)
+    log("HTTP Exception - #{$!.class.name} - #{$!.message}", :fail => true)
   end
   
   def self.add_users(attributes)
@@ -55,7 +90,7 @@ KEY
   end 
   
   def self.remove_unlisted_users(attributes)
-    local_logins = `cat /etc/group | grep "^envylabs_accounts"`.split(':').last
+    local_logins = execute("cat", :parameters => %|/etc/group \| grep "^envylabs_accounts"|, :fail => true).split(':').last
     return unless local_logins
     
     local_logins = local_logins.strip.split(',')
@@ -72,7 +107,7 @@ KEY
     exit(1) unless response_valid?(response)
     
     unless current_version?(response['Api-Version'])
-      `logger -i -t "Gatekeeper" "Local version out-of-date, downloading and aborting."`
+      log("Local version out-of-date, downloading and aborting.")
       download_new_version!
       exit(0)
     end
@@ -82,13 +117,13 @@ KEY
   
   def self.response_valid?(net_http_response)
     unless net_http_response.kind_of?(Net::HTTPSuccess)
-      `logger -i -t "Gatekeeper" "Non-200 Server Response - Code #{net_http_response.code}. Aborting."`
+      log("Non-200 Server Response - Code #{net_http_response.code}. Aborting.")
       return false
     end
     
     unless OpenSSL::PKey::RSA.new(PublicKey).
       verify(OpenSSL::Digest::SHA256.new, Base64.decode64(CGI.unescape(net_http_response['Response-Signature'])), net_http_response.body)
-      `logger -i -t "Gatekeeper" "Invalid signature received. Aborting."`
+      log("Invalid signature received. Aborting.")
       return false
     end
     
@@ -110,40 +145,35 @@ KEY
   end
 
   def exists?
-    `egrep -q ^#{self.login} /etc/passwd`
-    success?
+    execute("egrep", :parameters => "-q ^#{self.login} /etc/passwd").success?
   end
 
   def create!
-    `logger -i -t "Gatekeeper" "Creating \"#{self.login}\" user"`
-    `useradd --groups sudo,envylabs_accounts --create-home --shell /bin/bash --uid #{self.uid} --comment "#{self.full_name}" --password \`dd if=/dev/urandom count=1 2> /dev/null | sha512sum | cut -c-128\` #{self.login}`
-    success?
+    log(%|Creating "#{self.login}" user|)
+    execute("useradd", :parameters => "--groups sudo,envylabs_accounts --create-home --shell /bin/bash --uid #{self.uid} --comment \"#{self.full_name}\" --password \`dd if=/dev/urandom count=1 2> /dev/null | sha512sum | cut -c-128\` #{self.login}", :fail => true)
   end
   
   def destroy!
-    `logger -i -t "Gatekeeper" "Destroying \"#{self.login}\" user"`
-    `killall -u "#{self.login}"`
+    log(%|Destroying "#{self.login}" user|)
+    execute("killall", :parameters => %|-u "#{self.login}"|, :fail => true)
     sleep(2) # allow the user to be logged out
-    `userdel -rf "#{self.login}"`
-    success?
+    execute("userdel", :parameters => %|-rf "#{self.login}"|, :fail => true)
   end
 
   def has_authorized_key?
     return false unless File.exist?(authorized_keys_path)
-    `grep -q '#{self.public_key}' #{authorized_keys_path}`
-    success?
+    execute("grep", :parameters => %|-q "#{self.public_key}" "#{authorized_keys_path}"|).success?
   end
 
   def add_authorized_key!
-    `mkdir -p #{home_path}/.ssh`
-    `touch #{authorized_keys_path}`
+    execute("mkdir", :parameters => %|-p "#{home_path}/.ssh"|, :fail => true)
+    execute("touch", :parameters => %|"#{authorized_keys_path}"|, :fail => true)
     chown_home
-    `echo #{self.public_key} > #{authorized_keys_path} && chmod 0600 #{authorized_keys_path}`
-    success?
+    execute("echo", :parameters => %|#{self.public_key} > "#{authorized_keys_path}" && chmod 0600 "#{authorized_keys_path}"|, :fail => true)
   end
 
   def chown_home
-    `chown -R #{login}:#{login} #{home_path}`
+    execute("chown", :parameters => %|-R #{login}:#{login} "#{home_path}"|, :fail => true)
   end
 
   def home_path
@@ -171,11 +201,7 @@ KEY
     exit(1) unless response_valid?(response)
     
     File.open(File.expand_path(__FILE__), 'w') { |f| f.write response.body }
-    `logger -i -t "Gatekeeper" "Gatekeeper updated."`
-  end
-  
-  def success?
-    ($?.exitstatus == 0)
+    log("Gatekeeper updated.")
   end
   
 end
@@ -183,32 +209,35 @@ end
 ##
 # Need to run as root/sudo
 #
-if `id -u` == '0'
+if execute("id", :parameters => %|-u|) == '0'
   puts "Please run as root/sudo"
-  return 1
+  log("Please run as root/sudo", :fail => true)
 end
 
 if ENV['PROJECT'].nil? || ENV['PROJECT'] == ''
   puts "Please specify the project"
-  return 1
+  log("Please specify the project", :fail => true)
 end
 
 ##
 # Check for the sudo group, add if it doesn't exist.
 #
-`egrep -q ^sudo /etc/group`
-`groupadd sudo` unless ($?.exitstatus == 0)
+unless execute("egrep", :parameters => %|-q ^sudo /etc/group|).success?
+  execute("groupadd", :parameters => "sudo", :fail => true)
+end
 
 ##
 # Check for correct sudoer line, add if it doesn't exist.
 #
-`grep -q '%sudo   ALL=NOPASSWD: ALL' /etc/sudoers`
-`echo '%sudo   ALL=NOPASSWD: ALL' >> /etc/sudoers` unless ($?.exitstatus == 0)
+unless execute("grep", :parameters => %|-q "%sudo   ALL=NOPASSWD: ALL" /etc/sudoers|).success?
+  execute("echo", :parameters => %|"%sudo   ALL=NOPASSWD: ALL" >> /etc/sudoers|, :fail => true)
+end
 
 ##
 # Check for the envylabs group, add if it doesn't exist.
 #
-`egrep -q ^envylabs_accounts /etc/group`
-`groupadd envylabs_accounts` unless ($?.exitstatus == 0)
+unless execute("egrep", :parameters => %|-q ^envylabs_accounts /etc/group|).success?
+  execute("groupadd", :parameters => %|envylabs_accounts|, :fail => true)
+end
 
 ShellUser.manage(ENV['PROJECT'].to_s.strip.downcase)
