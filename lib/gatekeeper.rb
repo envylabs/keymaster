@@ -38,7 +38,7 @@ HTTP_ERRORS = [ Timeout::Error,
 # Execute a file on the server with optional parameters.
 # 
 def execute(executable, options = {})
-  executable_path = `/usr/bin/env type -P "#{executable}"`.strip
+  executable_path = `/usr/bin/env which "#{executable}"`.strip
   if $?.success?
     result = `\"#{executable_path}\" #{options[:parameters]}`.strip
     result.extend(ExecutionResult)
