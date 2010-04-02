@@ -12,6 +12,6 @@ The actual data transferred is very small, being only YAML-ized Ruby hashes.
 
 The following is a sample cron task, assuming that the gate keeper file is stored as "gatekeeper.rb" in root's home directory.
 
-    */5 * * * * PROJECT=twongo /root/gatekeeper.rb 2>&1
+    */5 * * * * PROJECT=twongo /root/gatekeeper.rb &> /dev/null
 
 This will automatically sync the system users and their SSH key pairs with the key master every 5 minutes of every hour of every day.
