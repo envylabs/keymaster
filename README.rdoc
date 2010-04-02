@@ -1,6 +1,6 @@
 == Envy Labs Key Master
 
-http://keymaster.heroku.com
+http://keymaster.envylabs.com
 
 The key master, in cooperation with the gate keeper, manages all public key and user access to project servers.
 
