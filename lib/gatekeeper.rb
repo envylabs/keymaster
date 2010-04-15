@@ -222,7 +222,8 @@ class ShellUser
   # Synchronizes shell users on the system with those dictated by the 
   # Keymaster server for the requested project.
   # 
-  # This also synchronizes the 
+  # This also synchronizes the deploy user's authorized keys to match those
+  # users who have access to the server.
   # 
   def self.synchronize(project)
     users = Keymaster.users_for_project(project)
