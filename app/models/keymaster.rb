@@ -13,7 +13,8 @@ module Keymaster
   # 
   def self.gatekeeper_data
     @@gatekeeper_data ||= File.read(File.join(Rails.root, 'lib/gatekeeper.rb')).
-      gsub('%CURRENT_KEYMASTER_VERSION%', self.version)
+      gsub('%CURRENT_KEYMASTER_VERSION%', self.version).
+      gsub('%CURRENT_PUBLIC_KEY%', ENV['PUBLIC_SIGNING_KEY'])
   end
   
 end

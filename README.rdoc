@@ -34,3 +34,10 @@ Then, in the gatekeeper.rb client, you execute it with:
     PROJECT="new-project" gatekeeper.rb
 
 This will contact the central server, inquiring for the authorized users for the given project.  Those users will then be synchronized to have sudo access with their stored public SSH keys, as well as add their SSH keys to the deploy user on the system (who does not have sudo access).
+
+=== Environment Variables
+
+This application expects certain environment variables to be set:
+
+PUBLIC_SIGNING_KEY:: Your public key to verify the signature on the client side (gatekeeper.rb)
+PRIVATE_SIGNING_KEY:: Your private key for signing the server responses.

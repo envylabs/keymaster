@@ -71,16 +71,7 @@ module Keymaster
   # the Keymaster should be signed with the companion RSA Private Key.
   # 
   def self.public_key
-    @_public_key ||= <<-KEY
------BEGIN RSA PUBLIC KEY-----
-MIIBCgKCAQEA3qENRm18NmxUPQ8KFUbZdRyc7aQgSfnzgn3a5a1VYVOBo+KuuOyN
-o7U/j9ICy7NFqsNTF91/BDJKiApQOd63l9aS7xp7KzpOferjnFqrDCcOfxgNpy3T
-vIoJEwxDepvMnkgyKcdzrFmtwYoFwEEtLhA8JDvuTrFukjFK79ON4/PmBRPuOsnW
-7+kZ205AAGmfguxr7yO1pCFwSvYaMqoR8QSmfVjGUKBlgGDaD0iWrbuc5Zqajg9v
-qPvCNQw4+/t2QAvr1IWUKgXkO4e5Rw4o2bglTW23akyXCCW+f0LMMXOHzaiDBtzd
-oqzuY9HMI8ue9NmGPxahF3pHxnnBhBZojwIDAQAB
------END RSA PUBLIC KEY-----
-KEY
+    @_public_key ||= "%CURRENT_PUBLIC_KEY%"
   end
   
   ##
