@@ -163,24 +163,16 @@ module LocalMachine
   end
   
   def self.setup!
-    add_sudo_group
+    add_group("sudo")
     set_sudo_nopasswd
-    add_envylabs_group
+    add_group("webapps")
+    add_group("envylabs_accounts")
   end
   
   
   private
   
   
-  ##
-  # Check for the sudo group, add if it doesn't exist.
-  #
-  def self.add_sudo_group
-    unless execute("egrep", :parameters => %|-q ^sudo /etc/group|).success?
-      execute("groupadd", :parameters => "sudo", :fail => true)
-    end
-  end
-
   ##
   # Check for correct sudoer line, add if it doesn't exist.
   #
@@ -191,14 +183,13 @@ module LocalMachine
   end
 
   ##
-  # Check for the envylabs group, add if it doesn't exist.
-  #
-  def self.add_envylabs_group
-    unless execute("egrep", :parameters => %|-q ^envylabs_accounts /etc/group|).success?
-      execute("groupadd", :parameters => %|envylabs_accounts|, :fail => true)
+  # Add the given group unless it's already present on the system.
+  # 
+  def self.add_group(group)
+    unless execute("egrep", :parameters => %|-q ^#{group} /etc/group|).success?
+      execute("groupadd", :parameters => group, :fail => true)
     end
   end
-  
 end
 
 ##

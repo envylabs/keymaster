@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20100222044149) do
+ActiveRecord::Schema.define(:version => 20100626141851) do
 
   create_table "memberships", :force => true do |t|
     t.integer  "project_id"
@@ -36,10 +36,18 @@ ActiveRecord::Schema.define(:version => 20100222044149) do
   add_index "slugs", ["name", "sluggable_type", "scope", "sequence"], :name => "index_slugs_on_n_s_s_and_s", :unique => true
   add_index "slugs", ["sluggable_id"], :name => "index_slugs_on_sluggable_id"
 
+  create_table "ssh_keys", :force => true do |t|
+    t.integer  "user_id",    :null => false
+    t.text     "public_key", :null => false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "ssh_keys", ["user_id"], :name => "index_ssh_keys_on_user_id"
+
   create_table "users", :force => true do |t|
     t.string   "login"
     t.string   "full_name"
-    t.text     "public_ssh_key"
     t.integer  "uid"
     t.datetime "created_at"
     t.datetime "updated_at"

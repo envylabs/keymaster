@@ -5,7 +5,7 @@ class UsersController < ApplicationController
     @users    = @project.users
     
     respond_to do |format|
-      format.yaml { render :text => @users.collect { |u| u.attributes }.to_yaml }
+      format.yaml { render :text => @users.collect { |u| u.keymaster_data }.to_yaml }
     end
   end
   
@@ -14,7 +14,7 @@ class UsersController < ApplicationController
     @user     = @parent.find_by_login(params[:id]) || raise(ActiveRecord::RecordNotFound)
     
     respond_to do |format|
-      format.yaml { render :text => @user.attributes.to_yaml }
+      format.yaml { render :text => @user.keymaster_data.to_yaml }
     end
   end
   
