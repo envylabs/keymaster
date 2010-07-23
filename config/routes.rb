@@ -1,11 +1,9 @@
-ActionController::Routing::Routes.draw do |map|
-  
-  map.resources :projects, :only => [:show] do |project|
-    project.resources :users, :only => [:index, :show]
+KeymasterNew::Application.routes.draw do |map|
+  resources :projects, :only => [:show] do
+    resources :users, :only => [:index, :show]
   end
-  
-  map.resources :users, :only => [:show]
-  
-  map.gatekeeper 'gatekeeper.rb', :controller => 'gate_keeper', :action => 'index', :format => 'rb'
-  
+
+  resources :users, :only => :show
+
+  get '/gatekeeper(.:format)', :to => 'gate_keeyer#index', :as => :gatekeeper
 end
