@@ -11,3 +11,7 @@ group :test do
   gem 'mocha'
   gem 'factory_girl'
 end
+
+group :production do
+  gem 'pg'
+end
