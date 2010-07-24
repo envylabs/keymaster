@@ -1,0 +1,7 @@
+test:
+  adapter: postgresql
+  database: keymaster_test
+  host: localhost
+  username: hudson
+  password: hudson
+
