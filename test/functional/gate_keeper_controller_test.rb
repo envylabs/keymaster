@@ -10,8 +10,8 @@ class GateKeeperControllerTest < ActionController::TestCase
         get :index, :format => 'rb'
       end
       
-      should_respond_with               :success
-      should_respond_with_content_type  :rb
+      should respond_with(:success)
+      should respond_with_content_type(:rb)
       
     end
     

@@ -1,6 +1,5 @@
 class ApplicationController < ActionController::Base
   
-  helper :all
   protect_from_forgery
   after_filter :set_version_header
   

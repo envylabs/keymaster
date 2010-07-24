@@ -10,27 +10,43 @@ class UserTest < ActiveSupport::TestCase
     
     subject { @user }
     
-    should_have_many              :memberships, :dependent => :destroy
-    should_have_many              :projects
-    should_have_many              :ssh_keys
+    should have_many(:memberships).dependent(:destroy)
+    should have_many(:projects)
+    should have_many(:ssh_keys)
     
-    should_validate_presence_of   :login,
-                                  :full_name,
-                                  :uid
+    should validate_presence_of(:login)
+    should validate_presence_of(:full_name)
+    should validate_presence_of(:uid)
     
-    should_validate_uniqueness_of :uid,
-                                  :login
+    should validate_uniqueness_of(:uid)
+    should validate_uniqueness_of(:login)
     
-    should_have_readonly_attributes :login,
-                                    :uid
+    should have_readonly_attribute(:login)
+    should have_readonly_attribute(:uid)
     
-    should_ensure_length_in_range   :login, (3..50)
+    should('ensure length of login') { ensure_length_of(:login).is_at_least(3).is_at_most(50) }
     
-    should_allow_values_for       :uid, 5000, 6000, 10000
-    should_not_allow_values_for   :uid, 0, 1, -100, 4999
+    should allow_value(5000).for(:uid)
+    should allow_value(6000).for(:uid)
+    should allow_value(10000).for(:uid)
+
+    should_not allow_value(0).for(:uid)
+    should_not allow_value(1).for(:uid)
+    should_not allow_value(-100).for(:uid)
+    should_not allow_value(4999).for(:uid)
     
-    should_allow_values_for       :login, 'thomas', 'foo', 'baz123', 'HappyBunnies'
-    should_not_allow_values_for   :login, 'Happy Bunnies', 'Thomas Meeks', '1bunny', 'foo@bar.com', 'foo-bar', 'foo.bar', '.foo'
+    should allow_value('thomas').for(:login)
+    should allow_value('foo').for(:login)
+    should allow_value('baz123').for(:login)
+    should allow_value('HappyBunnies').for(:login)
+
+    should_not allow_value('Happy Bunnies').for(:login)
+    should_not allow_value('Thomas Meeks').for(:login)
+    should_not allow_value('1bunny').for(:login)
+    should_not allow_value('foo@bar.com').for(:login)
+    should_not allow_value('foo-bar').for(:login)
+    should_not allow_value('foo.bar').for(:login)
+    should_not allow_value('.foo').for(:login)
     
     should 'use the login for the slug' do
       assert_equal('fubar', Factory.build(:user, :login => 'fubar').to_param)
