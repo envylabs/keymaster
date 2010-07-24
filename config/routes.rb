@@ -1,4 +1,4 @@
-KeymasterNew::Application.routes.draw do
+Keymaster::Application.routes.draw do
   resources :projects, :only => [:show] do
     resources :users, :only => [:index, :show]
   end
