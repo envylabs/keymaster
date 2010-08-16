@@ -1,7 +1,7 @@
 source 'http://rubygems.org'
 
-gem 'rails', '3.0.0.beta4'
-gem 'friendly_id', '>= 3.1.0.pre'
+gem 'rails', '3.0.0.rc'
+gem 'friendly_id', '3.1.3'
 gem 'rack-response-signature',  :require => 'rack/response_signature'
 
 gem 'sqlite3-ruby', :require => 'sqlite3', :group => [:test, :development]
