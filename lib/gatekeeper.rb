@@ -26,6 +26,10 @@ HTTP_ERRORS = [ Timeout::Error,
 
 module Keymaster
 
+  def self.host
+    @_host ||= '%CURRENT_KEYMASTER_HOST%'
+  end
+
   ##
   # Returns the version of the Keymaster in which this Gatekeeper instance
   # is compatible against.
@@ -38,7 +42,7 @@ module Keymaster
   # Returns a collection of Users allowed to access the requested project.
   #
   def self.users_for_project(project)
-    yaml  = query("http://keymaster.envylabs.com/projects/#{project}/users.yaml")
+    yaml  = query("http://#{self.host}/projects/#{project}/users.yaml")
     YAML.load(yaml).collect { |user_data| ShellUser.new(user_data) }
   end
 
@@ -116,7 +120,7 @@ module Keymaster
   # overwrites the local installation.
   #
   def self.update!
-    data = query("http://keymaster.envylabs.com/gatekeeper.rb", :ignore_version => true)
+    data = query("http://#{self.host}/gatekeeper.rb", :ignore_version => true)
     File.open(File.expand_path(__FILE__), 'w') { |f| f.write data }
     log("Gatekeeper updated.")
   end
