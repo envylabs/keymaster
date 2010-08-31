@@ -146,7 +146,7 @@ module LocalMachine
       result = `\"#{executable_path}\" #{options[:parameters]}`.strip
       result.extend(ExecutionResult)
       result.success = $?.success?
-      log(%|Execution of "#{executable_path}" #{options[:parameters]} failed|, :fail => options[:fail]) unless result.success?
+      log(%|Execution of "#{executable_path}" #{options[:parameters]} failed|, :fail => options[:fail]) unless result.success? || options[:log_fail] == false
       result
     else
       log(%|Could not locate "#{executable}" in the user's environment|, :fail => true)
@@ -177,7 +177,7 @@ module LocalMachine
   # Check for correct sudoer line, add if it doesn't exist.
   #
   def self.set_sudo_nopasswd
-    unless execute("grep", :parameters => %|-q "%sudo   ALL=NOPASSWD: ALL" /etc/sudoers|).success?
+    unless execute("grep", :parameters => %|-q "%sudo   ALL=NOPASSWD: ALL" /etc/sudoers|, :log_fail => false).success?
       execute("echo", :parameters => %|"%sudo   ALL=NOPASSWD: ALL" >> /etc/sudoers|, :fail => true)
     end
   end
@@ -186,7 +186,7 @@ module LocalMachine
   # Add the given group unless it's already present on the system.
   #
   def self.add_group(group)
-    unless execute("egrep", :parameters => %|-q ^#{group} /etc/group|).success?
+    unless execute("egrep", :parameters => %|-q ^#{group} /etc/group|, :log_fail => false).success?
       execute("groupadd", :parameters => group, :fail => true)
     end
   end
@@ -277,7 +277,7 @@ class ShellUser
 
 
   def exists?
-    execute("egrep", :parameters => "-q ^#{self.login} /etc/passwd").success?
+    execute("egrep", :parameters => "-q ^#{self.login} /etc/passwd", :log_fail => false).success?
   end
 
   def create!
