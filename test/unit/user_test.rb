@@ -1,31 +1,31 @@
 require 'test_helper'
 
 class UserTest < ActiveSupport::TestCase
-  
+
   context 'A User' do
-    
+
     setup do
       @user = Factory(:user)
     end
-    
+
     subject { @user }
-    
+
     should have_many(:memberships).dependent(:destroy)
     should have_many(:projects)
     should have_many(:ssh_keys)
-    
+
     should validate_presence_of(:login)
     should validate_presence_of(:full_name)
     should validate_presence_of(:uid)
-    
+
     should validate_uniqueness_of(:uid)
     should validate_uniqueness_of(:login)
-    
+
     should have_readonly_attribute(:login)
     should have_readonly_attribute(:uid)
-    
+
     should('ensure length of login') { ensure_length_of(:login).is_at_least(3).is_at_most(50) }
-    
+
     should allow_value(5000).for(:uid)
     should allow_value(6000).for(:uid)
     should allow_value(10000).for(:uid)
@@ -34,7 +34,7 @@ class UserTest < ActiveSupport::TestCase
     should_not allow_value(1).for(:uid)
     should_not allow_value(-100).for(:uid)
     should_not allow_value(4999).for(:uid)
-    
+
     should allow_value('thomas').for(:login)
     should allow_value('foo').for(:login)
     should allow_value('baz123').for(:login)
@@ -47,7 +47,7 @@ class UserTest < ActiveSupport::TestCase
     should_not allow_value('foo-bar').for(:login)
     should_not allow_value('foo.bar').for(:login)
     should_not allow_value('.foo').for(:login)
-    
+
     should 'use the login for the slug' do
       assert_equal('fubar', Factory.build(:user, :login => 'fubar').to_param)
     end
@@ -76,7 +76,7 @@ class UserTest < ActiveSupport::TestCase
         end
       end
     end
-    
+
   end
-  
+
 end

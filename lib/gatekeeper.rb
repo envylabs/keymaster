@@ -25,106 +25,106 @@ HTTP_ERRORS = [ Timeout::Error,
                 Net::ProtocolError          ]     unless defined?(HTTP_ERRORS)
 
 module Keymaster
-  
+
   ##
   # Returns the version of the Keymaster in which this Gatekeeper instance
   # is compatible against.
-  # 
+  #
   def self.version
     @_version ||= '%CURRENT_KEYMASTER_VERSION%'
   end
-  
+
   ##
   # Returns a collection of Users allowed to access the requested project.
-  # 
+  #
   def self.users_for_project(project)
     yaml  = query("http://keymaster.envylabs.com/projects/#{project}/users.yaml")
     YAML.load(yaml).collect { |user_data| ShellUser.new(user_data) }
   end
-  
+
   ##
   # Returns +true+ if the given content (with it's associated signature) came
   # from the Keymaster.  This method performs an RSA signature verification
   # against the pre-shared public key.
-  # 
+  #
   def self.valid?(content, signature)
     rsa.verify(digest, signature, content)
   end
-  
-  
+
+
   private
-  
-  
+
+
   def self.rsa
     @_rsa ||= OpenSSL::PKey::RSA.new(public_key)
   rescue OpenSSL::PKey::RSAError
     log("Invalid pre-shared RSA public key.  Aborting.")
     exit(1)
   end
-  
+
   def self.digest
     @_rsa_digest ||= OpenSSL::Digest::SHA256.new
   end
-  
+
   ##
   # Returns the RSA Public Key for the Keymaster.  All data collected from
   # the Keymaster should be signed with the companion RSA Private Key.
-  # 
+  #
   def self.public_key
     @_public_key ||= "%CURRENT_PUBLIC_KEY%"
   end
-  
+
   ##
   # Returns the data (body) from GET requesting the given URL.
-  # 
+  #
   def self.query(url, options = {})
     uri       = URI.parse(url)
     response  = Net::HTTP.start(uri.host, uri.port) do |http|
       yield(http) if block_given?
       http.get(uri.path)
     end
-    
+
     unless response.kind_of?(Net::HTTPSuccess)
       log("Non-200 Server Response - Code #{response.code}.", :fail => true)
     end
-    
+
     unless valid?(response.body, Base64.decode64(CGI.unescape(response['Response-Signature']))) || options[:ignore_signature]
       log("Invalid signature received. Aborting.", :fail => true)
     end
-    
+
     unless current?(response['Api-Version']) || options[:ignore_version]
       log("Local version out-of-date, downloading and aborting.")
       update!
       exit(0)
     end
-    
+
     response.body
   rescue *HTTP_ERRORS
     log("HTTP Error occurred: #{$!.class.name} - #{$!.message}", :fail => true)
   end
-  
+
   ##
-  # Returns +true+ if the given version matches the locally compatible 
+  # Returns +true+ if the given version matches the locally compatible
   # Keymaster.version.
-  # 
+  #
   def self.current?(version)
     Keymaster.version == version
   end
-  
+
   ##
-  # Downloads the newest version of the Gatekeeper from the server and 
+  # Downloads the newest version of the Gatekeeper from the server and
   # overwrites the local installation.
-  # 
+  #
   def self.update!
     data = query("http://keymaster.envylabs.com/gatekeeper.rb", :ignore_version => true)
     File.open(File.expand_path(__FILE__), 'w') { |f| f.write data }
     log("Gatekeeper updated.")
   end
-  
+
 end
 
 module LocalMachine
-  
+
   module ExecutionResult
 
     def success?
@@ -136,10 +136,10 @@ module LocalMachine
     end
 
   end
-  
+
   ##
   # Execute a file on the server with optional parameters.
-  # 
+  #
   def self.execute(executable, options = {})
     executable_path = `/usr/bin/env which "#{executable}"`.strip
     if $?.success?
@@ -152,27 +152,27 @@ module LocalMachine
       log(%|Could not locate "#{executable}" in the user's environment|, :fail => true)
     end
   end
-  
+
   ##
   # Log a message to syslog.
-  # 
+  #
   def self.log(message, options = {})
     puts message
     execute("logger", :parameters => %|-i -t "Gatekeeper" "#{message}"|)
     exit(1) if options[:fail]
   end
-  
+
   def self.setup!
     add_group("sudo")
     set_sudo_nopasswd
     add_group("webapps")
     add_group("envylabs_accounts")
   end
-  
-  
+
+
   private
-  
-  
+
+
   ##
   # Check for correct sudoer line, add if it doesn't exist.
   #
@@ -184,7 +184,7 @@ module LocalMachine
 
   ##
   # Add the given group unless it's already present on the system.
-  # 
+  #
   def self.add_group(group)
     unless execute("egrep", :parameters => %|-q ^#{group} /etc/group|).success?
       execute("groupadd", :parameters => group, :fail => true)
@@ -196,22 +196,22 @@ end
 # Envy Labs ShellUsers
 #
 class ShellUser
-  
+
   attr_accessor :login, :full_name, :public_key, :uid
-  
-  
+
+
   ##
-  # Synchronizes shell users on the system with those dictated by the 
+  # Synchronizes shell users on the system with those dictated by the
   # Keymaster server for the requested project.
-  # 
+  #
   # This also synchronizes the deploy user's authorized keys to match those
   # users who have access to the server.
-  # 
+  #
   def self.synchronize(project)
     users = Keymaster.users_for_project(project)
     add_users(users)
     remove_unlisted_users(users)
-    
+
     new({
       :login      => 'deploy',
       :full_name  => 'Application Deployment User',
@@ -220,8 +220,8 @@ class ShellUser
       :groups     => 'webapps'
     }).setup!
   end
-  
-  
+
+
   def initialize(attributes = {}, options = {})
     self.login      = attributes['login']           || attributes[:login]
     self.full_name  = attributes['full_name']       || attributes[:full_name]
@@ -241,14 +241,14 @@ class ShellUser
     sleep(2) # allow the user to be logged out
     execute("userdel", :parameters => %|-rf "#{self.login}"|, :fail => true)
   end
-  
+
   def synchronize_authorized_keys!
     keys = [public_key].flatten
-    
+
     execute("mkdir", :parameters => %|-p "#{home_path}/.ssh"|, :fail => true)
     execute("touch", :parameters => %|"#{authorized_keys_path}"|, :fail => true)
     chown_home
-    
+
     data = File.read(authorized_keys_path).strip
     data = data.gsub(%r{#{Regexp.escape(comment_open)}.*?#{Regexp.escape(comment_close)}}m, '').strip
     keys.each { |key| data = data.gsub(%r{#{Regexp.escape(key)}}, '') } # temporarily, explicitly remove keys left over after stripping header block.  This is because existing envylabs users will have authorized keys outside of the block (set before this was well managed).
@@ -258,15 +258,15 @@ class ShellUser
     data << "\n"
     File.open(authorized_keys_path, 'w') { |file| file.write data }
   end
-  
-  
+
+
   private
-  
-  
+
+
   def self.add_users(users)
     users.each { |user| user.setup! }
-  end 
-  
+  end
+
   def self.remove_unlisted_users(users)
     local_logins = execute("cat", :parameters => %|/etc/group \| grep "^envylabs_accounts"|, :fail => true).split(':').last
     return unless local_logins
@@ -274,37 +274,37 @@ class ShellUser
     local_logins = local_logins - users.collect { |u| u.login }
     local_logins.each { |login| new('login' => login).destroy! }
   end
-  
-  
+
+
   def exists?
     execute("egrep", :parameters => "-q ^#{self.login} /etc/passwd").success?
   end
-  
+
   def create!
     log(%|Creating "#{self.login}" user|)
     execute("useradd", :parameters => "--groups #{@groups || 'sudo,envylabs_accounts'} --create-home --shell /bin/bash #{uid ? "--uid #{self.uid}" : ''} --comment \"#{self.full_name}\" --password \`dd if=/dev/urandom count=1 2> /dev/null | sha512sum | cut -c-128\` #{self.login}", :fail => true)
   end
-  
+
   def chown_home
     execute("chown", :parameters => %|-R #{login}:#{login} "#{home_path}"|, :fail => true)
   end
-  
+
   def home_path
     "/home/#{login}"
   end
-  
+
   def authorized_keys_path
     "#{home_path}/.ssh/authorized_keys"
   end
-  
+
   def comment_open
     '# Begin Gatekeeper generated keys'
   end
-  
+
   def comment_close
     '# End Gatekeeper generated keys'
   end
-  
+
 end
 
 
