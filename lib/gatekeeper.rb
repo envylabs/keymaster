@@ -245,9 +245,7 @@ class ShellUser
   def synchronize_authorized_keys!
     keys = [public_key].flatten
 
-    execute("mkdir", :parameters => %|-p "#{home_path}/.ssh"|, :fail => true)
-    execute("touch", :parameters => %|"#{authorized_keys_path}"|, :fail => true)
-    chown_home
+    make_authorized_keys_file
 
     data = File.read(authorized_keys_path).strip
     data = data.gsub(%r{#{Regexp.escape(comment_open)}.*?#{Regexp.escape(comment_close)}}m, '').strip
@@ -293,8 +291,24 @@ class ShellUser
     "/home/#{login}"
   end
 
+  def make_home
+    return if File.exist?(home_path)
+    execute("mkdir", :parameters => %|-p "#{home_path}"|, :fail => true)
+    chown_home
+  end
+
   def authorized_keys_path
     "#{home_path}/.ssh/authorized_keys"
+  end
+
+  def make_authorized_keys_file
+    return if File.exist?(authorized_keys_path)
+    make_home
+    execute("mkdir", :parameters => %|-p "#{home_path}/.ssh"|, :fail => true)
+    execute("touch", :parameters => %|"#{authorized_keys_path}"|, :fail => true)
+    execute("chown", :parameters => %|-R #{login}:#{login} "#{home_path}/.ssh"|, :fail => true)
+    execute("chmod", :parameters => %|700 "#{home_path}/.ssh"|, :fail => true)
+    execute("chmod", :parameters => %|600 "#{authorized_keys_path}"|, :fail => true)
   end
 
   def comment_open
