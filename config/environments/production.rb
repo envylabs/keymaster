@@ -1,5 +1,3 @@
-require 'lib/rack/response-signature-repeater'
-
 Keymaster::Application.configure do
   # Settings specified here will take precedence over those in config/environment.rb
 
@@ -48,8 +46,4 @@ Keymaster::Application.configure do
 
   # Send deprecation notices to registered listeners
   config.active_support.deprecation = :notify
-
-  config.after_initialize do |config|
-    config.middleware.insert_before 'Rack::ResponseSignature', 'Rack::ResponseSignatureRepeater'
-  end
 end
