@@ -92,7 +92,7 @@ module Keymaster
       log("Non-200 Server Response - Code #{response.code}.", :fail => true)
     end
 
-    unless valid?(response.body, Base64.decode64(CGI.unescape(response['Response-Signature']))) || options[:ignore_signature]
+    unless valid?(response.body, Base64.decode64(CGI.unescape(response['X-Response-Signature']))) || options[:ignore_signature]
       log("Invalid signature received. Aborting.", :fail => true)
     end
 

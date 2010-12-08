@@ -50,7 +50,7 @@ GEM
     rack (1.2.1)
     rack-mount (0.6.13)
       rack (>= 1.0.0)
-    rack-response-signature (0.1.0)
+    rack-response-signature (0.2.0)
     rack-test (0.5.6)
       rack (>= 1.0)
     rails (3.0.3)
@@ -82,7 +82,7 @@ DEPENDENCIES
   friendly_id (= 3.1.8)
   mocha
   pg
-  rack-response-signature
+  rack-response-signature (= 0.2.0)
   rails (= 3.0.3)
   shoulda
   sqlite3-ruby
