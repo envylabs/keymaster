@@ -8,7 +8,7 @@ class ApplicationController < ActionController::Base
 
 
   def set_version_header
-    response.headers['Api-Version'] = Keymaster.version
+    response.headers['X-API-Version'] = Keymaster.version
   end
 
 end

@@ -96,7 +96,7 @@ module Keymaster
       log("Invalid signature received. Aborting.", :fail => true)
     end
 
-    unless current?(response['Api-Version']) || options[:ignore_version]
+    unless current?(response['X-API-Version']) || options[:ignore_version]
       log("Local version out-of-date, downloading and aborting.")
       update!
       exit(0)
