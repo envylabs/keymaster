@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20100626141851) do
+ActiveRecord::Schema.define(:version => 20110404013217) do
 
   create_table "memberships", :force => true do |t|
     t.integer  "project_id"
@@ -23,7 +23,10 @@ ActiveRecord::Schema.define(:version => 20100626141851) do
     t.string   "name"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "cached_slug"
   end
+
+  add_index "projects", ["cached_slug"], :name => "index_projects_on_cached_slug", :unique => true
 
   create_table "slugs", :force => true do |t|
     t.string   "name"
