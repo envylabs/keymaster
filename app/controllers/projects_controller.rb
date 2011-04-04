@@ -1,11 +1,8 @@
 class ProjectsController < ApplicationController
+  respond_to :yaml
 
   def show
     @project = Project.find(params[:id])
-
-    respond_to do |format|
-      format.yaml { render :text => @project.attributes.to_yaml }
-    end
+    respond_with @project.attributes
   end
-
 end
