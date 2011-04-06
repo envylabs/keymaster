@@ -5,7 +5,9 @@ ENV["PRIVATE_SIGNING_KEY"] = File.read(File.join(File.dirname(__FILE__), 'privat
 require File.expand_path('../../config/environment', __FILE__)
 require 'rails/test_help'
 
-require 'test/factories'
+Dir[Rails.root.join("test/factories/**/*.rb")].each do |factory|
+  require factory
+end
 
 class ActiveSupport::TestCase
   fixtures :all
