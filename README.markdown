@@ -12,7 +12,7 @@ The actual data transferred is very small, being only YAML-ized Ruby hashes.
 
 The following is a sample cron task, assuming that the gate keeper file is stored as "gatekeeper.rb" in root's home directory.
 
-```
+```bash
 */5 * * * * PROJECT=envylabs /root/gatekeeper.rb &> /dev/null
 ```
 
