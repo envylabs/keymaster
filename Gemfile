@@ -1,7 +1,7 @@
 source 'http://rubygems.org'
 
 gem 'rails', '3.0.9'
-gem 'friendly_id', '3.2.1.1'
+gem 'friendly_id'
 gem 'rack-response-signature', :require => 'rack/response_signature'
 gem 'pg'
 
