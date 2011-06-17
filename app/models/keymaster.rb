@@ -4,7 +4,7 @@ module Keymaster
   # Returns the current version number of the application.
   #
   def self.version
-    @@version ||= Rails.root.join('VERSION').read.strip
+    Keymaster::VERSION
   end
 
   ##
