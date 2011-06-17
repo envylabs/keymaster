@@ -37,7 +37,7 @@ project.users << user2
 
 Then, for the gatekeeper.rb client, you execute it with:
 
-```shell
+```bash
 $ PROJECT="new-project" ./gatekeeper.rb
 ```
 
