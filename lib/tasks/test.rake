@@ -2,8 +2,9 @@ namespace :test do
   namespace :ci do
     desc "Configure the CI test server"
     task :configure do
-      root = File.expand_path(File.join(File.dirname(__FILE__), '..', '..'))
-      cp File.join(root, 'config/database.ci.yml'), File.join(root, 'config/database.yml')
+      require 'pathname'
+      root = Pathname.new File.expand_path('../../../', __FILE__)
+      cp root.join('config/database.ci.yml'), root.join('config/database.yml')
     end
   end
 end
