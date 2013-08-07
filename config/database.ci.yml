@@ -1,3 +1,5 @@
 test:
   adapter: postgresql
   database: keymaster_test
+  username: postgres
+  min_messages: WARNING
