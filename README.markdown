@@ -1,5 +1,8 @@
 ## Envy Labs Key Master
 
+[![Build Status](https://travis-ci.org/envylabs/keymaster.png?branch=master)](https://travis-ci.org/envylabs/keymaster)
+[![Code Climate](https://codeclimate.com/github/envylabs/keymaster.png)](https://codeclimate.com/github/envylabs/keymaster)
+
 http://keymaster.envylabs.com
 
 The key master, in cooperation with the gate keeper, manages all public key and user access to project servers.
