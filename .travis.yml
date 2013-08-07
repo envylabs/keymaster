@@ -7,6 +7,6 @@ before_script:
   - psql -c 'create database keymaster_test;' -U postgres
   - cp config/database.ci.yml config/database.yml
   - RAILS_ENV=test bundle exec rake db:setup
-bundler_args: --without=development
+bundler_args: --without=development production
 notifications:
   email: false
