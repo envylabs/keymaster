@@ -1,5 +1,7 @@
 source 'https://rubygems.org'
 
+ruby "1.9.3"
+
 gem 'rails', '3.2.14'
 gem 'friendly_id', '~> 4.0'
 gem 'rack-response-signature', :require => 'rack/response_signature'
