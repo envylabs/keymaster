@@ -7,15 +7,17 @@ class UsersControllerTest < ActionController::TestCase
     context 'using GET to index with YAML' do
 
       setup do
-        @project = Factory(:project)
-        Factory(:membership, :project => @project)
-        Factory(:membership, :project => @project)
+        @project = FactoryGirl.create(:project)
+        FactoryGirl.create(:membership, :project => @project)
+        FactoryGirl.create(:membership, :project => @project)
         get :index, :project_id => @project.to_param, :format => 'yaml'
       end
 
       should respond_with(:success)
-      should respond_with_content_type(:yaml)
-      should assign_to(:users)          { @project.users }
+
+      should "respond with YAML" do
+        assert_equal(response.content_type, Mime::YAML)
+      end
 
     end
 
@@ -24,13 +26,15 @@ class UsersControllerTest < ActionController::TestCase
       context 'directly' do
 
         setup do
-          @user       = Factory(:user)
+          @user       = FactoryGirl.create(:user)
           get :show, :id => @user.to_param, :format => 'yaml'
         end
 
         should respond_with(:success)
-        should respond_with_content_type(:yaml)
-        should assign_to(:user)           { @user }
+
+        should "respond with YAML" do
+          assert_equal(response.content_type, Mime::YAML)
+        end
 
       end
 
@@ -39,24 +43,26 @@ class UsersControllerTest < ActionController::TestCase
         context 'for a user of the project' do
 
           setup do
-            @project    = Factory(:project)
-            @user       = Factory(:user)
-            @membership = Factory(:membership, :project => @project, :user => @user)
+            @project    = FactoryGirl.create(:project)
+            @user       = FactoryGirl.create(:user)
+            @membership = FactoryGirl.create(:membership, :project => @project, :user => @user)
             get :show, :project_id => @project.to_param, :id => @user.to_param, :format => 'yaml'
           end
 
           should respond_with(:success)
-          should respond_with_content_type(:yaml)
-          should assign_to(:user)           { @user }
+
+          should "respond with YAML" do
+            assert_equal(response.content_type, Mime::YAML)
+          end
 
         end
 
         context 'for a user not in the project' do
 
           setup do
-            @project    = Factory(:project)
-            @user       = Factory(:user)
-            @membership = Factory(:membership, :project => @project)
+            @project    = FactoryGirl.create(:project)
+            @user       = FactoryGirl.create(:user)
+            @membership = FactoryGirl.create(:membership, :project => @project)
           end
 
           should 'raise RecordNotFound' do

@@ -1,4 +1,5 @@
 class Project < ActiveRecord::Base
+  extend FriendlyId
 
   has_many                :memberships,
                           :dependent  => :destroy
@@ -8,6 +9,8 @@ class Project < ActiveRecord::Base
   validates_presence_of   :name
   validates_uniqueness_of :name
 
-  has_friendly_id         :name, :use_slug => true
+  friendly_id             :name,
+                          :use        => :slugged,
+                          :slug_column => :cached_slug
 
 end

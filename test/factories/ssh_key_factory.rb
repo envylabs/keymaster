@@ -1,3 +1,5 @@
-Factory.define :ssh_key do |s|
-  s.sequence(:public_key) { |n| "ssh-dss #{n}AAAAB3NzaC1kc3MAAACBAIcq==" }
+FactoryGirl.define do
+  factory :ssh_key do
+    sequence(:public_key) { |n| "ssh-dss #{n}AAAAB3NzaC1kc3MAAACBAIcq==" }
+  end
 end

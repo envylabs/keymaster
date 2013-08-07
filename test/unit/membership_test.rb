@@ -5,7 +5,7 @@ class MembershipTest < ActiveSupport::TestCase
   context 'A Membership' do
 
     setup do
-      @membership = Factory(:membership)
+      @membership = FactoryGirl.create(:membership)
     end
 
     subject { @membership }

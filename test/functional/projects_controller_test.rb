@@ -7,13 +7,15 @@ class ProjectsControllerTest < ActionController::TestCase
     context 'using GET to show with YAML' do
 
       setup do
-        @project = Factory(:project)
+        @project = FactoryGirl.create(:project)
         get :show, :id => @project.to_param, :format => 'yaml'
       end
 
       should respond_with(:success)
-      should respond_with_content_type(:yaml)
-      should assign_to(:project) { @project }
+
+      should "respond with YAML" do
+        assert_equal(response.content_type, Mime::YAML)
+      end
 
     end
 

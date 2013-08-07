@@ -1,12 +1,12 @@
 source 'https://rubygems.org'
 
-gem 'rails', '3.1.12'
-gem 'friendly_id', '~> 3.3'
+gem 'rails', '3.2.14'
+gem 'friendly_id', '~> 4.0'
 gem 'rack-response-signature', :require => 'rack/response_signature'
-gem 'pg'
+gem 'pg', '~> 0.16.0'
 
 group :test do
-  gem 'shoulda'
+  gem 'shoulda', '~> 3.5'
   gem 'mocha', :require => 'mocha/setup'
-  gem 'factory_girl'
+  gem 'factory_girl_rails', '~> 4.2'
 end

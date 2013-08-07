@@ -5,7 +5,7 @@ class ProjectTest < ActiveSupport::TestCase
   context 'A Project' do
 
     setup do
-      @project = Factory(:project)
+      @project = FactoryGirl.create(:project)
     end
 
     subject { @project }
@@ -18,7 +18,7 @@ class ProjectTest < ActiveSupport::TestCase
     should validate_uniqueness_of(:name)
 
     should 'use the name for the slug' do
-      assert_equal('this-is-a-test', Factory(:project, :name => 'This is a Test').to_param)
+      assert_equal('this-is-a-test', FactoryGirl.create(:project, :name => 'This is a Test').to_param)
     end
 
   end

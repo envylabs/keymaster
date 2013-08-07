@@ -5,7 +5,7 @@ class UserTest < ActiveSupport::TestCase
   context 'A User' do
 
     setup do
-      @user = Factory(:user)
+      @user = FactoryGirl.create(:user)
     end
 
     subject { @user }
@@ -49,7 +49,7 @@ class UserTest < ActiveSupport::TestCase
     should_not allow_value('.foo').for(:login)
 
     should 'use the login for the slug' do
-      assert_equal('fubar', Factory.build(:user, :login => 'fubar').to_param)
+      assert_equal('fubar', FactoryGirl.build(:user, :login => 'fubar').to_param)
     end
 
     context 'keymaster_data' do
@@ -67,7 +67,7 @@ class UserTest < ActiveSupport::TestCase
 
       context 'with multiple ssh keys' do
         should "concatenate them in public_ssh_key" do
-          @user.ssh_keys.create!(Factory.attributes_for(:ssh_key).slice(:public_key))
+          FactoryGirl.create_list(:ssh_key, 2, :user => @user)
           assert_equal 2, @user.ssh_keys.count
           @result = @user.keymaster_data
           @user.ssh_keys.each do |key|

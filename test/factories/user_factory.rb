@@ -1,8 +1,11 @@
-Factory.define :user do |u|
-  u.sequence(:login)    { |n| "login#{n}"}
-  u.sequence(:uid)      { |n| 5000 + n }
-  u.full_name           'Factory User'
-  u.after_build do |user|
-    user.ssh_keys.build(Factory.attributes_for(:ssh_key).slice(:public_key))
+FactoryGirl.define do
+  factory :user do
+    sequence(:login)    { |n| "login#{n}"}
+    sequence(:uid)      { |n| 5000 + n }
+    full_name           'Factory User'
+
+    after(:build) do |user|
+      FactoryGirl.build(:ssh_key, :user => user)
+    end
   end
 end

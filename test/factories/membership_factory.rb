@@ -1,4 +1,6 @@
-Factory.define :membership do |m|
-  m.association         :project
-  m.association         :user
+FactoryGirl.define do
+  factory :membership do
+    project
+    user
+  end
 end

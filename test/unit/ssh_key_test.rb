@@ -13,7 +13,7 @@ class SshKeyTest < ActiveSupport::TestCase
     should_not allow_value('123').for(:public_key)
 
     context '' do
-      setup { Factory(:user).tap { |user| Factory(:ssh_key, :user => user) } }
+      setup { FactoryGirl.create(:user).tap { |user| FactoryGirl.create(:ssh_key, :user => user) } }
       should validate_uniqueness_of(:public_key)
     end
   end

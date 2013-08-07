@@ -11,7 +11,10 @@ class GateKeeperControllerTest < ActionController::TestCase
       end
 
       should respond_with(:success)
-      should respond_with_content_type(:rb)
+
+      should "respond with Ruby" do
+        assert_equal(response.content_type, Mime::RB)
+      end
 
     end
 
