@@ -3,6 +3,6 @@ class ProjectsController < ApplicationController
 
   def show
     @project = Project.find(params[:id])
-    respond_with @project.attributes
+    respond_with(@project.attributes)
   end
 end
