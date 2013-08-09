@@ -4,7 +4,7 @@ ruby "1.9.3"
 
 gem 'rails', '3.2.14'
 gem 'friendly_id', '~> 4.0'
-gem 'rack-response-signature', :require => 'rack/response_signature'
+gem 'rack-response-signature', '~> 0.3.0', :require => 'rack/response_signature'
 gem 'pg', '~> 0.16.0'
 
 group :production do
