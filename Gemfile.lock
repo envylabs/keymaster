@@ -30,6 +30,9 @@ GEM
       multi_json (~> 1.0)
     arel (3.0.2)
     builder (3.0.4)
+    dotenv (0.8.0)
+    dotenv-rails (0.8.0)
+      dotenv (= 0.8.0)
     erubis (2.7.0)
     factory_girl (4.2.0)
       activesupport (>= 3.0.0)
@@ -106,6 +109,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  dotenv-rails (~> 0.8.0)
   factory_girl_rails (~> 4.2)
   friendly_id (~> 4.0)
   mocha

@@ -14,5 +14,8 @@
 /log/*.log
 /tmp
 
+/.env
+/.env.*
+!/.env.development
 /config/database.yml
 /.ruby-gemset

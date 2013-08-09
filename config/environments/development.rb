@@ -34,4 +34,7 @@ Keymaster::Application.configure do
 
   # Expands the lines which load the assets
   config.assets.debug = true
+
+  # Exercise the response signing in development mode.
+  config.middleware.use 'Rack::ResponseSignature', ENV['PRIVATE_SIGNING_KEY']
 end
